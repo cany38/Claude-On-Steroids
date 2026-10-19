@@ -1,4 +1,4 @@
-# Claude-On-Steroids
+# Claude On Steroids
 
 A custom connector that lets claude.ai work on your own computer. It can read and
 search files, write and edit them, run shell commands and delete files. Claude
