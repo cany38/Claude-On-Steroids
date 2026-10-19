@@ -26,8 +26,11 @@ provider from the list in the panel.
 
 ## Setup
 
-1. Double-click `start.bat`. The first run installs dependencies and opens the
-   panel in your browser. To run it from a terminal instead:
+1. The first time, double-click `setup.bat`. It checks that Node.js 18 or newer
+   is installed and installs the dependencies. Then double-click `start.bat` to
+   boot the server; it opens the panel in your browser. (`start.bat` installs the
+   dependencies too if it finds none, so setup is only needed once.) To run it
+   from a terminal instead:
 
    ```bash
    node src/server.mjs
