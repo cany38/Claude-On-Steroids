@@ -1,4 +1,4 @@
-# claude-connector
+# Claude-On-Steroids
 
 A custom connector that lets claude.ai work on your own computer. It can read and
 search files, write and edit them, run shell commands and delete files. Claude
@@ -37,10 +37,10 @@ provider from the list in the panel.
    - **Access:** add the folders Claude may touch. The default is
      `Desktop\opencode projeler`.
    - **Connection:** if no tunnel is open, press **Install cloudflared**. It
-     downloads the official Cloudflare release into `~/.claude-connector/bin`.
+     downloads the official Cloudflare release into `~/.claude-on-steroids/bin`.
      No account is needed, and the tunnel starts on its own.
    - **Connector URL:** copy the address, open claude.ai, then
-     **Settings > Connectors > Add custom connector**. Name it `claude-connector`,
+     **Settings > Connectors > Add custom connector**. Name it `Claude-On-Steroids`,
      paste the URL, and leave the OAuth fields empty.
    - **Try it in a chat:** turn the connector on and ask it to run the
      `machine_info` tool. The panel switches to "claude.ai connected" once it
@@ -72,11 +72,11 @@ Claude is told why.
   that points somewhere else is refused.
 - Commands run with your normal user permissions, so keep the roots narrow.
   Approving all of `C:\` is not a good idea.
-- Every call is appended to `~/.claude-connector/calls.jsonl`.
+- Every call is appended to `~/.claude-on-steroids/calls.jsonl`.
 
 ## Settings
 
-`~/.claude-connector/config.json`, also editable from the panel:
+`~/.claude-on-steroids/config.json`, also editable from the panel:
 
 | Field | Default | Notes |
 |---|---|---|
