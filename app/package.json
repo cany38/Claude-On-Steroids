@@ -1,0 +1,36 @@
+{
+  "name": "claude-on-steroids",
+  "version": "0.1.0",
+  "type": "module",
+  "description": "A custom claude.ai connector: local file and command tools over remote MCP (Streamable HTTP), with approvals in a local panel",
+  "keywords": [
+    "mcp",
+    "claude",
+    "connector",
+    "model-context-protocol"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/cany38/Claude-On-Steroids.git"
+  },
+  "bugs": {
+    "url": "https://github.com/cany38/Claude-On-Steroids/issues"
+  },
+  "homepage": "https://github.com/cany38/Claude-On-Steroids#readme",
+  "scripts": {
+    "start": "node src/server.mjs",
+    "check": "node --check src/server.mjs && node --check src/core.mjs && node --check src/mcp.mjs && node --check src/approvals.mjs && node --check src/tunnel.mjs && node --check src/config.mjs && node --check src/relay.mjs && node --check src/relaySetup.mjs && node --check relay/worker.mjs",
+    "test": "node --test test/e2e.test.mjs",
+    "verify": "npm run check && npm test"
+  },
+  "license": "SEE LICENSE IN LICENSE.md",
+  "engines": {
+    "node": ">=18"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.32.1",
+    "ws": "^8.22.0",
+    "zod": "^4.6.7"
+  },
+  "author": "Can YILDIZ"
+}
