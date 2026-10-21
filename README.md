@@ -18,9 +18,17 @@ claude.ai reaches the server over a small relay on your own free Cloudflare acco
 
 ## Getting started
 
-Run `start.bat` and the panel opens in your browser. Close that window or run `stop.bat` to stop the server. The "How to connect" guide in the panel walks you through the permanent address and adding the connector in claude.ai.
+Open the folder for your system and use its three files.
 
-You need Node.js 18 or newer. If you don't have it, run `setup.bat` first. It installs Node.js and the packages the project needs.
+| Folder | First time | Start | Stop |
+| --- | --- | --- | --- |
+| `For-Windows` | `setup.bat` | `start.bat` | `stop.bat` |
+| `For-macOS` | `setup.command` | `start.command` | `stop.command` |
+| `For-Linux` | `bash setup.sh` | `bash start.sh` | `bash stop.sh` |
+
+Setup installs Node.js 18 or newer if you don't have it, then the packages the project needs. "How to connect" guide at web page walks you through the permanent address and adding the connector in claude.ai. Closing the start window also stops the server.
+
+On a Mac, run `chmod +x For-macOS/*.command` once in Terminal first, because the files on GitHub do not carry their run permission. If macOS blocks a file, right click it and choose Open.
 
 ## Permissions
 
