@@ -3,7 +3,7 @@
 > [!NOTE]
 > This project uses Anthropic's official custom connector feature for claude.ai. It follows Anthropic's rules and should not get your account banned.
 >
-> Everything runs on your computer and on your own Cloudflare account. We have no server and we don't collect data. Claude sees a file only when it reads it in your chat.
+> Everything runs on your computer and on your own Cloudflare account. I have no server and I don't collect data. Claude sees a file only when it reads it in your chat.
 
 A custom MCP connector that lets normal Claude chat work on your own computer. It can read and search files, write, edit and delete them, and run shell commands.
 
