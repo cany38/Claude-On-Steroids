@@ -5,7 +5,7 @@
 >
 > Everything runs on your computer and on your own Cloudflare account. We have no server and we don't collect data. Claude sees a file only when it reads it in your chat.
 
-A custom MCP connector that lets claude.ai work on your own computer. It can read and search files, write, edit and delete them, and run shell commands.
+A custom MCP connector that lets normal Claude chat work on your own computer. It can read and search files, write, edit and delete them, and run shell commands.
 
 Writes, deletes and commands wait for your "Allow" in a local panel, depending on the permission level you pick.
 The tools can only reach the folders you approved.
