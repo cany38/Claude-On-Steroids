@@ -1,147 +1,66 @@
-# ✴️ Claude On Steroids
+# Claude On Steroids ✴️
 
-A custom connector that lets claude.ai work on your own computer. It can read and
-search files, write and edit them, run shell commands and delete files. Claude
-talks to it over remote MCP (Streamable HTTP), not through a browser extension.
+> [!NOTE]
+> This project uses Anthropic's official custom connector feature for claude.ai. It follows Anthropic's rules and should not get your account banned.
+>
+> Everything runs on your computer and on your own Cloudflare account. We have no server and we don't collect data. Claude sees a file only when it reads it in your chat.
 
-Writes, edits, deletes and shell commands wait for your approval in a local panel.
+A custom MCP connector that lets claude.ai work on your own computer. It can read and search files, write, edit and delete them, and run shell commands.
 
-```
-claude.ai  ---HTTPS--->  tunnel  --->  127.0.0.1:8857/mcp/<secret>
-                                        |
-                                        v
-                                 approval queue
-                                        |
-                                        v
-                you  <---  127.0.0.1:8858 panel (this computer only)
-```
+Writes, deletes and commands wait for your "Allow" in a local panel, depending on the permission level you pick.
+The tools can only reach the folders you approved.
 
-## Requirements
+<p align="center"><img src="screenshots/claude-chat.png" alt="Claude creates a folder and a story file on the Desktop through the connector" width="760"></p>
 
-Node.js 18 or newer. Windows is the main target; the server also runs on macOS and
-Linux, where commands go through `/bin/sh` instead of `cmd.exe`. You need a tunnel
-to publish the MCP endpoint. The panel can install Cloudflare's `cloudflared` for
-you on Windows and Linux; on macOS run `brew install cloudflared`, or pick another
-provider from the list in the panel.
+![The local panel](screenshots/panel.png)
 
-## Setup
+claude.ai reaches the server over a small relay on your own free Cloudflare account, so the connector URL never changes. There is no browser extension and no chat scraping.
 
-1. The first time, double-click `setup.bat`. It checks that Node.js 18 or newer
-   is installed and installs the dependencies. Then double-click `start.bat` to
-   boot the server; it opens the panel in your browser. (`start.bat` installs the
-   dependencies too if it finds none, so setup is only needed once.) To run it
-   from a terminal instead:
+## Getting started
 
-   ```bash
-   node src/server.mjs
-   ```
+Run `start.bat` and the panel opens in your browser. Close that window or run `stop.bat` to stop the server. The "How to connect" guide in the panel walks you through the permanent address and adding the connector in claude.ai.
 
-2. Follow the panel from top to bottom.
-   - **Access:** add the folders Claude may touch. The default is
-     `Desktop\opencode projeler`.
-   - **Connection:** if no tunnel is open, press **Install cloudflared**. It
-     downloads the official Cloudflare release into `~/.claude-on-steroids/bin`.
-     No account is needed, and the tunnel starts on its own.
-   - **Connector URL:** copy the address, open claude.ai, then
-     **Settings > Connectors > Add custom connector**. Name it `Claude-On-Steroids`,
-     paste the URL, and leave the OAuth fields empty.
-   - **Try it in a chat:** turn the connector on and ask it to run the
-     `machine_info` tool. The panel switches to "claude.ai connected" once it
-     reaches the server.
+You need Node.js 18 or newer. If you don't have it, run `setup.bat` first. It installs Node.js and the packages the project needs.
+
+## Permissions
+
+claude.ai has its own tool permissions for each connector. Set both tool groups to "Always allow" there, so Claude does not stop before every call. The local panel is where you really approve changes. The permission level decides what waits there.
+
+| Level | Reads | Writes | Commands | Deletes, destructive commands |
+| --- | --- | --- | --- | --- |
+| Read only | yes | no | no | no |
+| Files only | yes | ask | no | ask |
+| Ask every time | yes | ask | ask | ask |
+| Approve writes automatically | yes | auto | ask | ask |
+| Run safe commands automatically | yes | auto | auto | ask |
+| No restrictions | yes | auto | auto | auto |
+
+A request nobody answers within 110 seconds is denied, and Claude is told why. The Access card in the panel sets which folders the tools can reach.
 
 ## Tools
 
-| Tool | What it does | Approval |
-|---|---|---|
-| `machine_info` | host, roots, current permissions | none |
-| `list_dir`, `read_file`, `search` | reading | none |
-| `write_file`, `edit_file` | writing | panel, unless you turn auto-approve on |
-| `exec_command` | shell command (`cmd.exe` on Windows) | panel, unless you turn auto-approve on for safe commands |
-| `delete_file` | deleting | always the panel |
-
-Destructive commands (`del`, `rm -rf`, `format`, `diskpart`, `git reset --hard`,
-`git push --force`, `curl ... | sh` and similar) ask in the panel even with
-auto-approve on. An approval nobody answers within 110 seconds is denied, and
-Claude is told why.
+| Tool | What it does |
+| --- | --- |
+| `machine_info` | show the computer, the approved folders and the current permissions |
+| `list_dir`, `read_file`, `search` | read and search |
+| `write_file`, `edit_file` | change files |
+| `delete_file` | delete a file or folder |
+| `exec_command` | run a shell command |
 
 ## Security
 
-- MCP answers only on `/mcp/<64 hex characters>`; anything else gets an empty 404.
-  If the address leaks, press **Rotate address** in the panel, then update the
-  connector in claude.ai.
-- The panel listens on `127.0.0.1` only, needs the panel key, and rejects a
-  foreign `Host` header (DNS rebinding) or a POST from another origin (CSRF).
-- Every path must sit inside an approved root. A symlink or junction inside a root
-  that points somewhere else is refused.
-- Commands run with your normal user permissions, so keep the roots narrow.
-  Approving all of `C:\` is not a good idea.
-- Every call is appended to `~/.claude-on-steroids/calls.jsonl`.
-
-## Settings
-
-`~/.claude-on-steroids/config.json`, also editable from the panel:
-
-| Field | Default | Notes |
-|---|---|---|
-| `roots` | `Desktop\opencode projeler` | approved folders |
-| `readOnly` | `false` | switches writing, deleting and commands off |
-| `allowExec` | `true` | the command tool |
-| `autoApprove.write` / `.exec` | `false` | skip the panel for these |
-| `approvalTimeoutMs` | `110000` | how long a request waits |
-| `tunnel` | `auto` | `auto`, `cloudflared`, `ngrok`, `tailscale`, `localhostrun`, `serveo` or `none` |
-| `publicUrl` | empty | your own HTTPS address when `tunnel: none`, for example a Tailscale Funnel |
-| `publicPort` / `panelPort` | `8857` / `8858` | ports for MCP and the panel |
-| `maxOutputBytes` / `execTimeoutMs` | `200000` / `120000` | output cap and command timeout |
-
-`auto` tries Tailscale Funnel (if you are signed in), then cloudflared,
-localhost.run and Serveo, and finally ngrok. If one provider fails, the next one
-is tried, and the panel shows what went wrong.
-
-To use ngrok, add your account token once:
-
-```bash
-ngrok config add-authtoken <token>
-```
-
-## Troubleshooting
-
-- **The tunnel address changes on every restart** with quick tunnels, so you have
-  to paste it into claude.ai again. Use a fixed ngrok domain or set `publicUrl` for
-  an address that stays put.
-- **"session not found":** the server restarted and dropped the old MCP session.
-  claude.ai usually reconnects on its own; if not, toggle the connector off and on
-  in the chat.
-- **The panel says "Panel key required":** open it through the `.../#k=...` address
-  the server printed in the console.
-
-## Verify
-
-```bash
-npm run verify
-```
-
-This checks the syntax and runs 14 end-to-end tests. They connect with the official
-MCP SDK client and cover approval, denial, timeout, root escape through a junction,
-read-only mode, and the panel guards.
-
-## Disclaimer
-
-This project is not affiliated with, endorsed by or verified by Anthropic. It uses
-the custom connector feature that Anthropic documents for remote MCP servers, so
-Claude connects to the server from Anthropic's cloud. The project does not automate
-the claude.ai interface or reuse your account credentials. This is an early build
-(0.1.x) and things may break.
-
-Running it gives a language model access to files and shell commands on your
-computer. A web page, document or file that Claude reads can carry prompt injection
-that tries to turn those tools against you, so keep the approved roots narrow and
-read each approval request before you accept it. You are responsible for the files
-it reads and the commands it runs, and you should only use it on machines and data
-you own or are allowed to access.
-
-The software comes with no warranty, as stated in the LICENSE, and you use it at
-your own risk.
+- The connector URL contains a secret, so treat it like a password. If it leaks, press "Rotate address" and paste the new URL into claude.ai.
+- File tools only reach the approved folders. A link or junction that points outside is refused. This is not an OS sandbox.
+- Shell commands run with your user's permissions. The approved folders only set where a command starts, so keep commands on "ask" unless you need them.
+- The check for destructive commands is a heuristic. A command it does not flag is not guaranteed safe.
+- A file or web page Claude reads can hide instructions aimed at these tools. Keep the approved folders narrow and read each request before you allow it.
+- The panel listens on `127.0.0.1` only, needs the key in its URL and turns away requests from other sites.
+- The relay runs in your own Cloudflare account and stores only a hash of the secret.
 
 ## License
 
-MIT. See [LICENSE](LICENSE).
+PolyForm Strict 1.0.0. See [LICENSE.md](LICENSE.md). You may download and use the software for personal and other noncommercial purposes. You may not change it, build on it, share copies of it, sell it or use it commercially.
+
+## About
+
+Some parts of this project were made with help from AI tools. I guided and checked all of the work and made every final decision.
