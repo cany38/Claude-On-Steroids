@@ -9,8 +9,8 @@
 
 A custom MCP connector that lets normal Claude chat work on your own computer. It can read and search files, write, edit and delete them, and run shell commands.
 
-Writes, deletes and commands wait for your "Allow" in a local panel, depending on the permission level you pick.
-The tools can only reach the folders you approved.
+Every call runs right away with your user's rights, on any folder your account can reach.
+A local panel shows each call as it happens.
 
 <p align="center"><img src="screenshots/claude-chat.png" alt="Claude creates a folder and a story file on the Desktop through the connector" width="760"></p>
 
@@ -28,30 +28,19 @@ Open the folder for your system and use its three files.
 | `For-macOS` | `setup.command` | `start.command` | `stop.command` |
 | `For-Linux` | `bash setup.sh` | `bash start.sh` | `bash stop.sh` |
 
-Setup installs Node.js 18 or newer if you don't have it, then the packages the project needs. "How to connect" guide at web page walks you through the permanent address and adding the connector in claude.ai. Closing the start window also stops the server.
+Setup installs Node.js, or updates it to the newest patched release from nodejs.org, then the packages the project needs. Run it again any time to pick up Node.js security releases. "How to connect" guide at web page walks you through the permanent address and adding the connector in claude.ai. Closing the start window also stops the server.
 
 On a Mac, run `chmod +x For-macOS/*.command` once in Terminal first, because the files on GitHub do not carry their run permission. If macOS blocks a file, right click it and choose Open.
 
-## Permissions
+## Tool permissions in claude.ai
 
-claude.ai has its own tool permissions for each connector. Set both tool groups to "Always allow" there, so Claude does not stop before every call. The local panel is where you really approve changes. The permission level decides what waits there.
-
-| Level | Reads | Writes | Commands | Deletes, destructive commands |
-| --- | --- | --- | --- | --- |
-| Read only | yes | no | no | no |
-| Files only | yes | ask | no | ask |
-| Ask every time | yes | ask | ask | ask |
-| Approve writes automatically | yes | auto | ask | ask |
-| Run safe commands automatically | yes | auto | auto | ask |
-| No restrictions | yes | auto | auto | auto |
-
-A request nobody answers within 110 seconds is denied, and Claude is told why. The Access card in the panel sets which folders the tools can reach.
+claude.ai has its own tool permissions for each connector. Set both tool groups to "Always allow" there, so Claude does not stop before every call. The connector itself asks nothing and has no folder limit. A path without a folder starts from your home folder.
 
 ## Tools
 
 | Tool | What it does |
 | --- | --- |
-| `machine_info` | show the computer, the approved folders and the current permissions |
+| `machine_info` | show the computer, its shell and the home folder |
 | `list_dir`, `read_file`, `search` | read and search |
 | `write_file`, `edit_file` | change files |
 | `delete_file` | delete a file or folder |
@@ -60,10 +49,8 @@ A request nobody answers within 110 seconds is denied, and Claude is told why. T
 ## Security
 
 - The connector URL contains a secret, so treat it like a password. If it leaks, press "Rotate address" and paste the new URL into claude.ai.
-- File tools only reach the approved folders. A link or junction that points outside is refused. This is not an OS sandbox.
-- Shell commands run with your user's permissions. The approved folders only set where a command starts, so keep commands on "ask" unless you need them.
-- The check for destructive commands is a heuristic. A command it does not flag is not guaranteed safe.
-- A file or web page Claude reads can hide instructions aimed at these tools. Keep the approved folders narrow and read each request before you allow it.
+- Anyone with the URL can read, change and delete your files and run commands as your user, with nothing to stop them.
+- A file or web page Claude reads can hide instructions aimed at these tools. Nothing waits for your approval, so watch the Activity board.
 - The panel listens on `127.0.0.1` only, needs the key in its URL and turns away requests from other sites.
 - The relay runs in your own Cloudflare account and stores only a hash of the secret.
 
